@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.4.RELEASE")
     }
 }
 
@@ -25,16 +25,23 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    // tag::jetty[]
+
     compile("org.springframework.boot:spring-boot-starter-web") {
-        exclude module: "spring-boot-starter-tomcat"
+		exclude module: "spring-boot-starter-logging"
     }
-    compile("org.springframework.boot:spring-boot-starter-jetty")
-    // end::jetty[]
+	compile("org.springframework.boot:spring-boot-starter-tomcat")
+	
+	// tag::swagger2
+	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
+	compile("io.springfox:springfox-swagger2:2.6.1")
+	// end::swagger2
     // tag::actuator[]
+	
     compile("org.springframework.boot:spring-boot-starter-actuator")
+	compile("org.springframework.boot:spring-boot-devtools")
     // end::actuator[]
     testCompile("junit:junit")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
+
