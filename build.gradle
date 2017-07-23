@@ -9,7 +9,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'idea'
+// apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
 jar {
@@ -27,21 +27,19 @@ targetCompatibility = 1.8
 dependencies {
 
     compile("org.springframework.boot:spring-boot-starter-web") {
-		exclude module: "spring-boot-starter-logging"
     }
 	compile("org.springframework.boot:spring-boot-starter-tomcat")
 	
-	// tag::swagger2
-	// https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
-	compile("io.springfox:springfox-swagger2:2.6.1")
-	// end::swagger2
-    // tag::actuator[]
-	
+    compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile("org.webjars:webjars-locator")
+    compile("org.webjars:sockjs-client:1.0.2")
+    compile("org.webjars:stomp-websocket:2.3.3")
+    compile("org.webjars:bootstrap:3.3.7")
+    compile("org.webjars:jquery:3.1.0")
+
     compile("org.springframework.boot:spring-boot-starter-actuator")
 	compile("org.springframework.boot:spring-boot-devtools")
-    // end::actuator[]
     testCompile("junit:junit")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
-
