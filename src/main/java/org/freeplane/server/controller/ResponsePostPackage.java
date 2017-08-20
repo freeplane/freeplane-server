@@ -1,6 +1,6 @@
 package org.freeplane.server.controller;
 
-public class ResponsePackage {
+public class ResponsePostPackage {
 
 	private String method;
 	private String id;
@@ -27,7 +27,6 @@ public class ResponsePackage {
 	
 	@Override
 	public String toString() {
-		return "ResponsePackage [method=" + method + ", id=" + id + ", revision=" + revision + "]";
+		return "ResponsePostPackage [method=" + method + ", id=" + id + ", revision=" + revision + "]";
 	}
-
 }

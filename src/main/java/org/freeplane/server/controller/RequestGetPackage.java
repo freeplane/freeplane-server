@@ -1,12 +1,11 @@
 package org.freeplane.server.controller;
 
-public class RequestPackage {
+public class RequestGetPackage {
 
 	private String method;
 	private String id;
 	private String revision;
-	private String contents;
-	
+
 	public String getMethod() {
 		return method;
 	}
@@ -25,16 +24,10 @@ public class RequestPackage {
 	public void setRevision(String revision) {
 		this.revision = revision;
 	}
-	public String getContents() {
-		return contents;
-	}
-	public void setContents(String contents) {
-		this.contents = contents;
-	}
-
+	
 	@Override
 	public String toString() {
-		return "RequestPackage [method=" + method + ", id=" + id + ", revision=" + revision + ", contents=" + contents
-				+ "]";
+		return "RequestGetPackage [method=" + method + ", id=" + id + ", revision=" + revision + "]";
 	}
+
 }

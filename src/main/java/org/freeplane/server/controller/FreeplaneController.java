@@ -1,31 +1,51 @@
 package org.freeplane.server.controller;
 
+import org.freeplane.server.service.GetMapService;
+import org.freeplane.server.service.PostMapService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
-
+/*
+ * These are the methods that are currently supported by FreeplaneController:
+ * 
+ * get-id
+ * get-id-version
+ * post-name
+ * post-id
+ * 
+ */
 @Controller
 public class FreeplaneController {
-
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(FreeplaneController.class);
 	
+	@Autowired
+	GetMapService getMapService;
 	
-    @MessageMapping("/map")        // client sends to server - /freeplane/map
-    @SendTo(value = "/topic/map")  // this is what the client subscribes to for return data
-    public ResponsePackage mapRequest(RequestPackage requestPackage) throws Exception {
-    	LOGGER.debug("Input from GET: /freeplane/map/ = " + requestPackage);
+	@Autowired
+	PostMapService postMapService;
+	
+    @MessageMapping("/get-map")        // client sends to server - /freeplane/get-map
+    @SendTo(value = "/topic/get-map")  // this is what the client subscribes to for return data
+    public ResponseGetPackage mapRequest(RequestGetPackage requestPackage) throws Exception {
+    	LOGGER.debug("Input from GET: /freeplane/get-map/ = " + requestPackage);
     	
-    	ResponsePackage responsePackage = new ResponsePackage();
-    	responsePackage.setId(requestPackage.getId() + "-JOE");
-    	responsePackage.setMethod(requestPackage.getMethod());
-    	responsePackage.setRevision(requestPackage.getRevision());
+    	ResponseGetPackage responsePackage = getMapService.processRequest(requestPackage);
+
+    	return responsePackage;
+    }
+    
+    @MessageMapping("/post-map")        // client sends to server - /freeplane/post-map
+    @SendTo(value = "/topic/post-map")  // this is what the client subscribes to for return data
+    public ResponsePostPackage mapRequest(RequestPostPackage requestPackage) throws Exception {
+    	LOGGER.debug("Input from POST: /freeplane/post-map/ = " + requestPackage);
     	
-    	// based on the 'method' string received, execute the appropriate service and return
-    	
+    	ResponsePostPackage responsePackage = postMapService.processRequest(requestPackage);
+
     	return responsePackage;
     }
     

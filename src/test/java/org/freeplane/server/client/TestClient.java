@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.freeplane.server.controller.RequestPackage;
-import org.freeplane.server.controller.ResponsePackage;
+import org.freeplane.server.controller.RequestPostPackage;
+import org.freeplane.server.controller.ResponsePostPackage;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
@@ -48,19 +48,19 @@ public class TestClient {
             @Override
             public void afterConnected(final StompSession session, StompHeaders connectedHeaders) {
             	setSession(session);
-                session.subscribe("/topic/map", new StompFrameHandler() {
+                session.subscribe("/topic/post-map", new StompFrameHandler() {
                     @Override
                     public Type getPayloadType(StompHeaders headers) {
-                        return ResponsePackage.class;
+                        return ResponsePostPackage.class;
                     }
 
                     @Override
                     public void handleFrame(StompHeaders headers, Object payload) {
                         try {
-                        	if (!(payload instanceof ResponsePackage)) {
+                        	if (!(payload instanceof ResponsePostPackage)) {
                         		throw new IllegalArgumentException("Wrong data type returned: " + payload.getClass().getName());
                         	}
-                        	ResponsePackage responsePackage = (ResponsePackage) payload; 
+                        	ResponsePostPackage responsePackage = (ResponsePostPackage) payload; 
                             setResponsePackage(responsePackage);
                             System.out.println("DEBUG: freeplane data returned from server: " + responsePackage);
                         } catch (Throwable t) {
@@ -75,19 +75,19 @@ public class TestClient {
         testClient.stompClient.connect("ws://localhost:8080/freeplane", testClient.headers, handler, testClient.port);
     	String msg;
     	int cntr = 0;
-    	RequestPackage requestPackage;
+    	RequestPostPackage requestPackage;
     	Scanner input = null;
         try {
         	input = new Scanner(System.in);
             while (true) {
             	System.out.println("Enter data to be sent to server: ");
             	msg = input.nextLine();
-            	requestPackage = new RequestPackage();
+            	requestPackage = new RequestPostPackage();
             	requestPackage.setId("" + ++cntr);
             	requestPackage.setRevision("1.0");
-            	requestPackage.setMethod("get-updates");
+            	requestPackage.setMethod("post-name");
             	requestPackage.setContents(msg);
-	            handler.getSession().send("/freeplane/map", requestPackage);
+	            handler.getSession().send("/freeplane/post-map", requestPackage);
             }
         } catch (Exception t) {
         	t.printStackTrace();
@@ -99,10 +99,10 @@ public class TestClient {
     }
 
     private class TestSessionHandler extends StompSessionHandlerAdapter {
-    	ResponsePackage responsePackage;
+    	ResponsePostPackage responsePackage;
     	StompSession session;
 
-    	public void setResponsePackage(ResponsePackage responsePackage) {
+    	public void setResponsePackage(ResponsePostPackage responsePackage) {
     		this.responsePackage = responsePackage;
     	}
     	
