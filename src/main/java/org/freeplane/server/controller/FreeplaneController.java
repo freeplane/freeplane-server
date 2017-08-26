@@ -1,6 +1,5 @@
 package org.freeplane.server.controller;
 
-import org.freeplane.plugin.collaboration.client.event.batch.ServerUpdatesFinished;
 import org.freeplane.server.service.GetMapService;
 import org.freeplane.server.service.PostMapService;
 import org.slf4j.Logger;
@@ -50,14 +49,14 @@ public class FreeplaneController {
     	return responsePackage;
     }
     
-    @MessageMapping("/update-map1")        // client sends to server - /freeplane/update-map1
-    @SendTo(value = "/topic/post-map")  // this is what the client subscribes to for return data
-    public void mapUpdateRequest(ServerUpdatesFinished requestPackage) throws Exception {
-    	LOGGER.debug("Input from POST: /freeplane/post-map/ = " + requestPackage);
-    	
-    	// ResponsePostPackage responsePackage = postMapService.processRequest(requestPackage);
-
-    	return;
-    }
+//    @MessageMapping("/update-map1")        // client sends to server - /freeplane/update-map1
+//    @SendTo(value = "/topic/post-map")  // this is what the client subscribes to for return data
+//    public void mapUpdateRequest(ServerUpdatesFinished requestPackage) throws Exception {
+//    	LOGGER.debug("Input from POST: /freeplane/post-map/ = " + requestPackage);
+//    	
+//    	// ResponsePostPackage responsePackage = postMapService.processRequest(requestPackage);
+//
+//    	return;
+//    }
     
 }

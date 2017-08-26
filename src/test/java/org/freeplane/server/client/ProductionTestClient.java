@@ -4,15 +4,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.freeplane.plugin.collaboration.client.event.ImmutableGenericNodeUpdated;
-import org.freeplane.plugin.collaboration.client.event.MapUpdated;
-import org.freeplane.plugin.collaboration.client.event.batch.ImmutableUpdatesFinished;
-import org.freeplane.plugin.collaboration.client.event.batch.UpdatesFinished;
-import org.freeplane.plugin.collaboration.client.event.children.ImmutableChildrenUpdated;
-import org.freeplane.server.controller.RequestPostPackage;
 import org.freeplane.server.controller.ResponsePostPackage;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -26,8 +19,6 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 
 public class ProductionTestClient {
@@ -84,20 +75,20 @@ public class ProductionTestClient {
 
         List<String> content = Arrays.asList("one", "two", "three");
     	
-    	MapUpdated mapUpdated = ImmutableChildrenUpdated  // ImmutableGenericNodeUpdated
-    			.builder()
-    			.content(content)
-    			.nodeId("myNodeId")
-    			.build();
-    	
-    	UpdatesFinished updatesFinished = ImmutableUpdatesFinished
-    			.builder()
-    			.mapId("my-map-id")
-    			.mapRevision(1)
-    			.addUpdateEvents(mapUpdated)
-    			.build()
-    			;
-    	handler.getSession().send("/freeplane/update-map1", updatesFinished);
+//    	MapUpdated mapUpdated = ImmutableChildrenUpdated  // ImmutableGenericNodeUpdated
+//    			.builder()
+//    			.content(content)
+//    			.nodeId("myNodeId")
+//    			.build();
+//    	
+//    	UpdatesFinished updatesFinished = ImmutableUpdatesFinished
+//    			.builder()
+//    			.mapId("my-map-id")
+//    			.mapRevision(1)
+//    			.addUpdateEvents(mapUpdated)
+//    			.build()
+//    			;
+//    	handler.getSession().send("/freeplane/update-map1", updatesFinished);
     }
     
     private class TestSessionHandler extends StompSessionHandlerAdapter {
