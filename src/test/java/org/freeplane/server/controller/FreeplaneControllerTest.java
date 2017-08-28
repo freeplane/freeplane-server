@@ -55,7 +55,7 @@ public class FreeplaneControllerTest {
         this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
     }
 
-    @Test
+    @Test(timeout = 100)
     public void getServerResponse() throws Exception {
 
         final CountDownLatch latch = new CountDownLatch(1);

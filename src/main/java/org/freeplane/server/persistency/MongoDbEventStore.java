@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MongoDbEventStore implements EventStore, InitializingBean {
+public class MongoDbEventStore implements EventStore {
 
 	private static final Logger logger = LoggerFactory.getLogger(MongoDbEventStore.class);
 	
@@ -19,8 +19,7 @@ public class MongoDbEventStore implements EventStore, InitializingBean {
 	private GenericEventRepository genericEventRepository;
 
 	@Override
-	public void store(final GenericEvent genericEvent)
-	{
+	public void store(final GenericEvent genericEvent) {
 		genericEventRepository.save(genericEvent);
 	}
 
@@ -54,13 +53,5 @@ public class MongoDbEventStore implements EventStore, InitializingBean {
 	public List<GenericEvent> findByMapIdAndContentType(String mapId,
 			String contentType) {
 		return genericEventRepository.findByMapIdAndContentType(mapId, contentType);
-	}
-	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		logger.info("MongoDbEventStore: creating GenericEvent!");
-		final String json = "{\"content\": \"PRODX2!!!\");";
-		GenericEvent genericEvent = new GenericEvent("mapId1", "nodeId1", "CORE", json);
-		store(genericEvent);
 	}
 }
