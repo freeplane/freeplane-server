@@ -53,7 +53,7 @@ public class FreeplaneController {
     @MessageMapping("/update-map1")        // client sends to server - /freeplane/update-map1
     @SendTo(value = "/topic/post-map")  // this is what the client subscribes to for return data
     public void mapUpdateRequest(ServerUpdatesFinished requestPackage) throws Exception {
-    	LOGGER.debug("Input from POST: /freeplane/post-map/ = " + requestPackage);
+    	LOGGER.debug("Input from POST: /freeplane/update-map1/ = " + requestPackage);
     	
     	// ResponsePostPackage responsePackage = postMapService.processRequest(requestPackage);
 
