@@ -56,6 +56,7 @@ public class PocTestClient {
     			.addUpdateEvents(mapUpdated)
     			.build();
     	final StompSession session = handler.getSession();
+    	Thread.sleep(1000);
 		session.send("/freeplane/update-map-test1", updatesFinished);
     }
 }

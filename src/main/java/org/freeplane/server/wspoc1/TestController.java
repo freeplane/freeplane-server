@@ -1,9 +1,9 @@
 package org.freeplane.server.wspoc1;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.freeplane.plugin.collaboration.client.event.batch.ServerUpdatesFinished;
-import org.freeplane.server.controller.FreeplaneController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -15,7 +15,7 @@ public class TestController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestController.class);
 
-	private static List<PocTestClient> testClients;
+	private static List<PocTestClient> testClients = new ArrayList<>();
 	
 	public static void registerTestClient(final PocTestClient testClient)
 	{

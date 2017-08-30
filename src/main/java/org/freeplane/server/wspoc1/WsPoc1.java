@@ -5,6 +5,6 @@ public class WsPoc1 {
 	{
 		new PocTestClient().run();
 		Thread.sleep(5000);
-		new PocTestClient().run();
+//		new PocTestClient().run();
 	}
 }

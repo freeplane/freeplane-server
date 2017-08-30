@@ -46,10 +46,28 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-devtools")
     compile("org.immutables:value:2.5.5")
-	compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0'
-	compile 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.9.0'
+    
+    // spring-boot pulls jackson-* 2.8.x, so we also want to use that version here!!
+    // (do not use 2.9.0!!)
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
+	compile 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.8'
 	
     testCompile("junit:junit")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+       }
+   }
+   test {
+       java {
+       	    srcDir 'src/test/java'
+            exclude 'org/freeplane/server/client/ProductionTestClient.java'
+            exclude 'org/freeplane/server/controller/FreeplaneControllerTest.java'
+       }
+   }
 }
