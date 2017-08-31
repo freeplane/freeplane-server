@@ -61,11 +61,14 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
+            // these require ServerUpdatesFinished & co which are linked from the client in eclipse!
+            exclude 'org/freeplane/server/wspoc1/**'
        }
    }
    test {
        java {
        	    srcDir 'src/test/java'
+            // these require ServerUpdatesFinished & co which are linked from the client in eclipse!
             exclude 'org/freeplane/server/client/ProductionTestClient.java'
             exclude 'org/freeplane/server/controller/FreeplaneControllerTest.java'
        }
