@@ -9,7 +9,11 @@ import org.freeplane.plugin.collaboration.client.event.MapUpdated;
 import org.freeplane.plugin.collaboration.client.event.batch.ImmutableUpdatesFinished;
 import org.freeplane.plugin.collaboration.client.event.batch.UpdatesFinished;
 import org.freeplane.plugin.collaboration.client.event.children.ImmutableChildrenUpdated;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.converter.MessageConverter;
+import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -27,14 +31,20 @@ public class PocTestClient {
     private TestSessionHandler handler;
 
     public PocTestClient() {
+    }
+    
+    protected void prepare() {
         List<Transport> transports = new ArrayList<>();
         transports.add(new WebSocketTransport(new StandardWebSocketClient()));
         this.sockJsClient = new SockJsClient(transports);
 
         this.stompClient = new WebSocketStompClient(sockJsClient);
-        this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+//        this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+//        this.stompClient.setMessageConverter(new StringMessageConverter());
         
         handler = new TestSessionHandler(failure);
+        
+//        TestController.registerTestClient(this);
     }
 
     public void run() throws Exception
