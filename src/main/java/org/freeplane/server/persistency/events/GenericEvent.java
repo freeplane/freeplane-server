@@ -20,8 +20,9 @@ public class GenericEvent {
 	@Id
 	private final CompositeKey key;
 	
+	// duplicated, because key.id is hard to match!
 	private final String id;
-
+	
 	private final String mapId;
 
 	private final String nodeId;
@@ -128,7 +129,7 @@ public class GenericEvent {
 	public String getId() {
 		return id;
 	}
-
+	
 	public String getMapId() {
 		return mapId;
 	}
