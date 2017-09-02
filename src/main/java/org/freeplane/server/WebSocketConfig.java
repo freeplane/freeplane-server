@@ -17,22 +17,8 @@ import org.springframework.web.socket.handler.ExceptionWebSocketHandlerDecorator
 // https://www.youtube.com/watch?v=nxakp15CACY
 
 @Configuration
-//@EnableWebSocketMessageBroker
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
-
-	/*
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/freeplane");
-    }
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/freeplane").withSockJS();
-    }
-    */
 	
 	@Autowired
 	private PocTestServer pocTestServer;
@@ -41,16 +27,4 @@ public class WebSocketConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(new ExceptionWebSocketHandlerDecorator(pocTestServer), "/freeplane");
     }
-    
-    @Bean
-    public WebSocketHandler myHandler() {
-        return pocTestServer;
-    }
-
-
-//    @Bean
-//    public WebSocketHandler myHandler() {
-//        return new MyHandler();
-//    }
-
 }
