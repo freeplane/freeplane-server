@@ -62,6 +62,8 @@ sourceSets {
             // exclude this from gradle build, as it uses some JSON wrappers
             // which are only available through linked eclipse projects!
             exclude 'org/freeplane/server/controller/FreeplaneController.java'
+            exclude 'org/freeplane/server/WebSocketConfig.java'
+            exclude 'org/freeplane/server/wspoc2/**.java'
        }
     }
     test {
