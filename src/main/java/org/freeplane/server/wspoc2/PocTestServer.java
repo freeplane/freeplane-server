@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.freeplane.plugin.collaboration.client.event.batch.ImmutableServerUpdatesFinished;
-import org.freeplane.plugin.collaboration.client.event.batch.ServerUpdatesFinished;
+import org.freeplane.collaboration.event.batch.GenericUpdateBlockCompleted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ public class PocTestServer extends TextWebSocketHandler {
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
     	
-    	ServerUpdatesFinished serverUpdatesFinished = objectMapper.readValue(message.getPayload(), ServerUpdatesFinished.class);
+    	GenericUpdateBlockCompleted serverUpdatesFinished = objectMapper.readValue(message.getPayload(), GenericUpdateBlockCompleted.class);
     	logger.info("Server received message: {}", serverUpdatesFinished);
     	for(WebSocketSession webSocketSession : sessions) {
     		webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(serverUpdatesFinished)));

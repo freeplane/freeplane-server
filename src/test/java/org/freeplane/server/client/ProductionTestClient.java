@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.freeplane.plugin.collaboration.client.event.MapUpdated;
-import org.freeplane.plugin.collaboration.client.event.batch.ImmutableUpdatesFinished;
-import org.freeplane.plugin.collaboration.client.event.batch.UpdatesFinished;
-import org.freeplane.plugin.collaboration.client.event.children.ImmutableChildrenUpdated;
+import org.freeplane.collaboration.event.batch.ImmutableUpdateBlockCompleted;
+import org.freeplane.collaboration.event.batch.UpdateBlockCompleted;
+import org.freeplane.collaboration.event.content.other.ImmutableNodeContentUpdated;
 import org.freeplane.server.controller.ResponsePostPackage;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -80,21 +79,8 @@ public class ProductionTestClient {
 
         List<String> content = Arrays.asList("one", "two", "three");
     	
-    	MapUpdated mapUpdated = ImmutableChildrenUpdated  // ImmutableGenericNodeUpdated
-    			.builder()
-    			.content(content)
-    			.nodeId("myNodeId")
-    			.build();
-    	
-    	UpdatesFinished updatesFinished = ImmutableUpdatesFinished
-    			.builder()
-    			.mapId("my-map-id")
-    			.mapRevision(1)
-    			.addUpdateEvents(mapUpdated)
-    			.build()
-    			;
     	final StompSession session = handler.getSession();
-		session.send("/freeplane/update-map1", updatesFinished);
+//		session.send("/freeplane/update-map1", updatesFinished);
     }
     
     private class TestSessionHandler extends StompSessionHandlerAdapter {
