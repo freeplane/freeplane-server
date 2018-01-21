@@ -24,10 +24,18 @@ repositories {
     mavenCentral()
 }
 
+if( !project.hasProperty('skipMavenLocal') ) {
+    repositories {
+        mavenLocal()
+    }
+}
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
+
+    compile("org.freeplane.collaboration:freeplane-events:0.0.1-SNAPSHOT")
 
     compile("org.springframework.boot:spring-boot-starter-web") {
     }
@@ -59,20 +67,11 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
-            // exclude this from gradle build, as it uses some JSON wrappers
-            // which are only available through linked eclipse projects!
-            exclude 'org/freeplane/server/controller/FreeplaneController.java'
-            exclude 'org/freeplane/server/WebSocketConfig.java'
-            exclude 'org/freeplane/server/wspoc2/**.java'
        }
     }
     test {
         java {
             srcDir 'src/test/java'
-            // exclude this from gradle build, as it uses some JSON wrappers
-            // which are only available through linked eclipse projects!
-            exclude 'org/freeplane/server/client/ProductionTestClient.java'
-            exclude 'org/freeplane/server/controller/FreeplaneControllerTest.java'
         }
     }
 }
