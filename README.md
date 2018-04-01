@@ -35,3 +35,13 @@
 *** create freeplane map via freeplane and use that as input to test client
 *** how do we test with an updated map (use a 'real' client)?
 
+Here is how to test-run it:
+
+- checkout https://github.com/freeplane/freeplane-events
+- gradle build publishToMavenLocal
+- checkout https://github.com/freeplane/freeplane-server
+- git checkout wspoc2
+- gradle build cleanEclipse eclipse
+- run org.freeplane.server.Application (server)
+- run org.freeplane.server.wspoc2.PocTestClient
+
