@@ -5,7 +5,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.freeplane.collaboration.event.MapUpdated;
+import org.freeplane.collaboration.event.batch.ImmutableMapId;
 import org.freeplane.collaboration.event.batch.ImmutableUpdateBlockCompleted;
+import org.freeplane.collaboration.event.batch.MapId;
 import org.freeplane.collaboration.event.batch.UpdateBlockCompleted;
 import org.freeplane.collaboration.event.content.other.ImmutableNodeContentUpdated;
 import org.freeplane.server.json.JacksonConfiguration;
@@ -63,7 +65,7 @@ public class PocTestClient {
     	
     	ImmutableUpdateBlockCompleted updatesFinished = ImmutableUpdateBlockCompleted
     			.builder()
-    			.mapId("my-map-id")
+    			.mapId(ImmutableMapId.of("my-map-id"))
     			.mapRevision(1)
     			.addUpdateBlock(mapUpdated)
     			.build();
