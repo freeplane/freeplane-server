@@ -25,6 +25,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new ExceptionWebSocketHandlerDecorator(webSocketServer), "/freeplane");
+        registry.addHandler(new ExceptionWebSocketHandlerDecorator(webSocketServer), "/freeplane")
+        	.setAllowedOrigins("*");
     }
 }
