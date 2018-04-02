@@ -24,11 +24,19 @@ repositories {
     mavenCentral()
 }
 
+if( !project.hasProperty('skipMavenLocal') ) {
+    repositories {
+        mavenLocal()
+    }
+}
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
 
+	compile("org.freeplane.collaboration:freeplane-events:0.0.1-SNAPSHOT")
+	
     compile("org.springframework.boot:spring-boot-starter-web") {
     }
     compile("org.springframework.boot:spring-boot-starter-tomcat")
