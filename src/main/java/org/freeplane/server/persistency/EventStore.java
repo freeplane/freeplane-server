@@ -10,7 +10,7 @@ public interface EventStore {
 
 	void store(final GenericEvent genericEvent);
 	
-	GenericEvent findByKey(final String id, final long version);
+	GenericEvent findByKey(final String id, final long mapRevision, long eventIndex);
 
 	// get all versions of a document
 	List<GenericEvent> findById(final String id);
@@ -21,7 +21,7 @@ public interface EventStore {
 	List<GenericEvent> findByMapIdAndNodeIdAndContentType(final String mapId, final String nodeId, final String contentType);
 	List<GenericEvent> findByMapIdAndContentType(final String mapId, final String contentType);
 	
-	List<GenericEvent> findByIdAndMaxVersion(final String id, final long maxVersion);
+	List<GenericEvent> findByIdAndMaxMapRevision(final String id, final long maxMapRevision);
 	
-	List<GenericEvent> findByIdAndMinVersion(final String id, final long minVersion);
+	List<GenericEvent> findByIdAndMinMapRevision(final String id, final long minMapRevision);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.freeplane.server.persistency.events.GenericEvent;
 import org.freeplane.server.persistency.events.GenericEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,8 +32,8 @@ public class MongoDbEventStore implements EventStore {
 	}
 
 	@Override
-	public GenericEvent findByKey(String id, long version) {
-		return genericEventRepository.findByKey(id, version);
+	public GenericEvent findByKey(String id, long mapRevision, long eventIndex) {
+		return genericEventRepository.findByKey(id, mapRevision, eventIndex);
 	}
 
 	@Override
@@ -63,18 +64,20 @@ public class MongoDbEventStore implements EventStore {
 	}
 
 	@Override
-	public List<GenericEvent> findByIdAndMaxVersion(String id, long maxVersion) {
+	public List<GenericEvent> findByIdAndMaxMapRevision(String id, long maxMapRevision) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("id").is(id));
-		query.addCriteria(Criteria.where("_id.version").lte(maxVersion));
+		query.addCriteria(Criteria.where("_id.mapRevision").lte(maxMapRevision));
+		query.with(new Sort(Sort.Direction.ASC, "eventIndex"));
 		return mongoTemplate.find(query, GenericEvent.class);
 	}
 
 	@Override
-	public List<GenericEvent> findByIdAndMinVersion(String id, long minVersion) {
+	public List<GenericEvent> findByIdAndMinMapRevision(String id, long minMapRevision) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("id").is(id));
-		query.addCriteria(Criteria.where("_id.version").gte(minVersion));
+		query.addCriteria(Criteria.where("_id.mapRevision").gte(minMapRevision));
+		query.with(new Sort(Sort.Direction.ASC, "eventIndex"));
 		return mongoTemplate.find(query, GenericEvent.class);
 	}
 

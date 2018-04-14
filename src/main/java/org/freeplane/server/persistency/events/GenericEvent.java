@@ -25,29 +25,89 @@ public class GenericEvent {
 	
 	private final String mapId;
 
+	// Optional! \exists events for whole map!!
 	private final String nodeId;
 
 	private final String contentType;
+	
+	// the index of this event in the batch update:
+	// (used to reconstruct the order of events in a batch event!)
+	private final long eventIndex;
 	
 	private final String json;
 
 	@CreatedDate
 	private Instant createdDate;
+	
+	public static class Builder {
+		private String mapId;
+		private String nodeId;
+		private String contentType;
+		private long mapRevision = -1L;
+		private long eventIndex = 1L;
+		private String json;
+		
+		public Builder mapId(String mapId)
+		{
+			this.mapId = mapId;
+			return this;
+		}
+
+		public Builder nodeId(String nodeId)
+		{
+			this.nodeId = nodeId;
+			return this;
+		}
+
+		public Builder contentType(String contentType)
+		{
+			this.contentType = contentType;
+			return this;
+		}
+
+		public Builder mapRevision(long mapRevision)
+		{
+			this.mapRevision = mapRevision;
+			return this;
+		}
+		
+		public Builder eventIndex(long eventIndex)
+		{
+			this.eventIndex = eventIndex;
+			return this;
+		}
+		
+		public GenericEvent buildInitialEvent()
+		{
+			mapRevision = 1L;
+			return build();
+		}
+		
+		public GenericEvent build()
+		{
+			if (nodeId == null)
+			{
+				nodeId = "<nonode>";
+			}
+			return new GenericEvent(mapId, nodeId, contentType, mapRevision, eventIndex, json);
+		}
+	}
 
 	public GenericEvent(final String mapId, final String nodeId,
-			final String contentType, final long version, final String json) {
+			final String contentType, final long mapRevision, final long eventIndex, final String json) {
 		// id = new CompositeKey(mapId, nodeId, contentType);
-		this.key = new CompositeKey(mapId + ":" + nodeId + ":" + contentType, version);
+		this.key = new CompositeKey(mapId + ":" + nodeId + ":" + contentType, mapRevision, eventIndex);
 		this.id = this.key.getId();
 		this.mapId = mapId;
 		this.nodeId = nodeId;
 		this.contentType = contentType;
 		this.json = json;
+		this.eventIndex = eventIndex;
 	}
 
 	public GenericEvent(final String mapId, final String nodeId,
 			final String contentType, final String json) {
-		this(mapId, nodeId, contentType, 1L, json);
+		this(mapId, nodeId, contentType, 1L, 1L, json);
 	}
 
 	// see https://github.com/cybuch/sample-spring-data-mongo-composite-key
@@ -60,25 +120,35 @@ public class GenericEvent {
 		private static final long serialVersionUID = 5392273919922170345L;
 
 		private final String id;
-		private final long version;
+		
+		// mapRevision is per map!!	
+		// mapRevision is the "batchid" (corresponds to one batch update!)
+		private final long mapRevision;
+		
+		private final long eventIndex;
 
-		public CompositeKey(final String id, final long version) {
+		public CompositeKey(final String id, final long mapRevision, final long eventIndex) {
 			this.id = id;
-			this.version = version;
+			this.mapRevision = mapRevision;
+			this.eventIndex = eventIndex;
 		}
 
 		public String getId() {
 			return id;
 		}
 
-		public long getVersion() {
-			return version;
+		public long getMapRevision() {
+			return mapRevision;
+		}
+		
+		public long getEventIndex() {
+			return eventIndex;
 		}
 
 		@Override
 		public String toString()
 		{
-			return String.format("key[%s-%d]", id, version);
+			return String.format("key[%s-%d-%d]", id, mapRevision, eventIndex);
 		}
 
 		@Override
@@ -86,7 +156,7 @@ public class GenericEvent {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((id == null) ? 0 : id.hashCode());
-			result = prime * result + (int) (version ^ (version >>> 32));
+			result = prime * result + (int) (mapRevision ^ (mapRevision >>> 32));
 			return result;
 		}
 
@@ -104,7 +174,7 @@ public class GenericEvent {
 					return false;
 			} else if (!id.equals(other.id))
 				return false;
-			if (version != other.version)
+			if (mapRevision != other.mapRevision)
 				return false;
 			return true;
 		}
@@ -142,6 +212,10 @@ public class GenericEvent {
 		return contentType;
 	}
 	
+	public long getEventIndex() {
+		return eventIndex;
+	}
+	
 	public String getJson() {
 		return json;
 	}
@@ -149,8 +223,8 @@ public class GenericEvent {
 	@Override
 	public String toString() {
 		return String.format(
-				"GenericEvent[id=%s, mapId=%s, nodeId=%s, contentType=%s]",
-				key, mapId, nodeId, contentType);
+				"GenericEvent[id=%s, mapId=%s, nodeId=%s, contentType=%s, eventIndex=%d]",
+				key, mapId, nodeId, contentType, eventIndex);
 	}
 
 	@Override
@@ -159,6 +233,7 @@ public class GenericEvent {
 		int result = 1;
 		result = prime * result
 				+ ((contentType == null) ? 0 : contentType.hashCode());
+		result = prime * result + (int) (eventIndex ^ (eventIndex >>> 32));
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((json == null) ? 0 : json.hashCode());
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
@@ -180,6 +255,8 @@ public class GenericEvent {
 			if (other.contentType != null)
 				return false;
 		} else if (!contentType.equals(other.contentType))
+			return false;
+		if (eventIndex != other.eventIndex)
 			return false;
 		if (id == null) {
 			if (other.id != null)
@@ -208,4 +285,6 @@ public class GenericEvent {
 			return false;
 		return true;
 	}
+
+	
 }

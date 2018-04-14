@@ -61,7 +61,7 @@ public class MongoDbEventStoreTest {
 
 		mongoDbEventStore.store(genericEvent1);
 		
-		Assert.assertEquals(json1, mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 1L).getJson());
+		Assert.assertEquals(json1, mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 1L, 1L).getJson());
 		Assert.assertEquals(1, mongoDbEventStore.findById("mapId1:nodeId1:CORE").size());
 	}
 	
@@ -70,22 +70,22 @@ public class MongoDbEventStoreTest {
 		mongoDbEventStore.deleteAll();
 		
 		GenericEvent genericEvent1 = new GenericEvent("mapId1", "nodeId1", "CORE", "{\"content\": \"json1\");");
-		GenericEvent genericEvent2 = new GenericEvent("mapId1", "nodeId1", "CORE", 2L, "{\"content\": \"json1v2\");");
-		GenericEvent genericEvent3 = new GenericEvent("mapId1", "nodeId1", "CORE", 3L, "{\"content\": \"json1v3\");");
+		GenericEvent genericEvent2 = new GenericEvent("mapId1", "nodeId1", "CORE", 2L, 1L, "{\"content\": \"json1v2\");");
+		GenericEvent genericEvent3 = new GenericEvent("mapId1", "nodeId1", "CORE", 3L, 1L, "{\"content\": \"json1v3\");");
 		
 		GenericEvent genericEvent4 = new GenericEvent("mapId1", "nodeId2", "CORE", "{\"content\": \"json2\");");
 		GenericEvent genericEvent5 = new GenericEvent("mapId1", "nodeId2", "DETAILS", "{\"content\": \"json3\");");
 		GenericEvent genericEvent6 = new GenericEvent("mapId2", "nodeId1", "CORE", "{\"content\": \"json4\");");
-		GenericEvent genericEvent7 = new GenericEvent("mapId2", "nodeId1", "CORE", 33L, "{\"content\": \"json4v33\");");
+		GenericEvent genericEvent7 = new GenericEvent("mapId2", "nodeId1", "CORE", 33L, 1L, "{\"content\": \"json4v33\");");
 		
 		mongoDbEventStore.store(genericEvent1);
 		mongoDbEventStore.store(genericEvent2);
 		mongoDbEventStore.store(genericEvent1);
 		mongoDbEventStore.store(genericEvent3);
 		
-		Assert.assertEquals("{\"content\": \"json1\");", mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 1L).getJson());
-		Assert.assertEquals("{\"content\": \"json1\");", mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 1L).getJson());
-		Assert.assertEquals("{\"content\": \"json1v3\");", mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 3L).getJson());
+		Assert.assertEquals("{\"content\": \"json1\");", mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 1L, 1L).getJson());
+		Assert.assertEquals("{\"content\": \"json1\");", mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 1L, 1L).getJson());
+		Assert.assertEquals("{\"content\": \"json1v3\");", mongoDbEventStore.findByKey("mapId1:nodeId1:CORE", 3L, 1L).getJson());
 		Assert.assertEquals(3, mongoDbEventStore.findById("mapId1:nodeId1:CORE").size());
 
 		mongoDbEventStore.store(genericEvent4);
@@ -93,12 +93,12 @@ public class MongoDbEventStoreTest {
 		mongoDbEventStore.store(genericEvent6);
 		mongoDbEventStore.store(genericEvent7);
 		
-		Assert.assertEquals("{\"content\": \"json2\");", mongoDbEventStore.findByKey("mapId1:nodeId2:CORE", 1L).getJson());
+		Assert.assertEquals("{\"content\": \"json2\");", mongoDbEventStore.findByKey("mapId1:nodeId2:CORE", 1L, 1L).getJson());
 		Assert.assertEquals(1, mongoDbEventStore.findById("mapId1:nodeId2:CORE").size());
-		Assert.assertEquals("{\"content\": \"json3\");", mongoDbEventStore.findByKey("mapId1:nodeId2:DETAILS", 1L).getJson());
+		Assert.assertEquals("{\"content\": \"json3\");", mongoDbEventStore.findByKey("mapId1:nodeId2:DETAILS", 1L, 1L).getJson());
 		Assert.assertEquals(1, mongoDbEventStore.findById("mapId1:nodeId2:DETAILS").size());
-		Assert.assertEquals("{\"content\": \"json4\");", mongoDbEventStore.findByKey("mapId2:nodeId1:CORE", 1L).getJson());
-		Assert.assertEquals("{\"content\": \"json4v33\");", mongoDbEventStore.findByKey("mapId2:nodeId1:CORE", 33L).getJson());
+		Assert.assertEquals("{\"content\": \"json4\");", mongoDbEventStore.findByKey("mapId2:nodeId1:CORE", 1L, 1L).getJson());
+		Assert.assertEquals("{\"content\": \"json4v33\");", mongoDbEventStore.findByKey("mapId2:nodeId1:CORE", 33L, 1L).getJson());
 		Assert.assertEquals(2, mongoDbEventStore.findById("mapId2:nodeId1:CORE").size());
 		
 		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByMapId("mapId1"),
@@ -135,10 +135,10 @@ public class MongoDbEventStoreTest {
 		mongoDbEventStore.deleteAll();
 		
 		GenericEvent genericEvent1 = new GenericEvent("mapId1", "nodeId1", "CORE", "{\"content\": \"json1\");");
-		GenericEvent genericEvent2 = new GenericEvent("mapId1", "nodeId1", "CORE", 5L, "{\"content\": \"json1v5\");");
-		GenericEvent genericEvent3 = new GenericEvent("mapId1", "nodeId1", "CORE", 20L, "{\"content\": \"json1v20\");");
-		GenericEvent genericEvent4 = new GenericEvent("mapId2", "nodeId1", "CORE", 1L, "{\"content\": \"json1v1\");");
-		GenericEvent genericEvent5 = new GenericEvent("mapId1", "nodeId2", "CORE", 1L, "{\"content\": \"json1v1\");");
+		GenericEvent genericEvent2 = new GenericEvent("mapId1", "nodeId1", "CORE", 5L, 1L, "{\"content\": \"json1v5\");");
+		GenericEvent genericEvent3 = new GenericEvent("mapId1", "nodeId1", "CORE", 20L, 1L, "{\"content\": \"json1v20\");");
+		GenericEvent genericEvent4 = new GenericEvent("mapId2", "nodeId1", "CORE", 1L, 1L, "{\"content\": \"json1v1\");");
+		GenericEvent genericEvent5 = new GenericEvent("mapId1", "nodeId2", "CORE", 1L, 1L, "{\"content\": \"json1v1\");");
 		
 		mongoDbEventStore.store(genericEvent1);
 		mongoDbEventStore.store(genericEvent2);
@@ -146,26 +146,46 @@ public class MongoDbEventStoreTest {
 		mongoDbEventStore.store(genericEvent4);
 		mongoDbEventStore.store(genericEvent5);
 
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinVersion("mapId1:nodeId1:CORE", 1L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinMapRevision("mapId1:nodeId1:CORE", 1L),
 				Arrays.asList(genericEvent1, genericEvent2, genericEvent3));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinVersion("mapId1:nodeId1:CORE", 4L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinMapRevision("mapId1:nodeId1:CORE", 4L),
 				Arrays.asList(genericEvent2, genericEvent3));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinVersion("mapId1:nodeId1:CORE", 5L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinMapRevision("mapId1:nodeId1:CORE", 5L),
 				Arrays.asList(genericEvent2, genericEvent3));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinVersion("mapId1:nodeId1:CORE", 20L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinMapRevision("mapId1:nodeId1:CORE", 20L),
 				Arrays.asList(genericEvent3));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinVersion("mapId1:nodeId1:CORE", 21L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMinMapRevision("mapId1:nodeId1:CORE", 21L),
 				Arrays.asList());
 
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxVersion("mapId1:nodeId1:CORE", 22L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxMapRevision("mapId1:nodeId1:CORE", 22L),
 				Arrays.asList(genericEvent1, genericEvent2, genericEvent3));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxVersion("mapId1:nodeId1:CORE", 20L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxMapRevision("mapId1:nodeId1:CORE", 20L),
 				Arrays.asList(genericEvent1, genericEvent2, genericEvent3));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxVersion("mapId1:nodeId1:CORE", 5L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxMapRevision("mapId1:nodeId1:CORE", 5L),
 				Arrays.asList(genericEvent1, genericEvent2));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxVersion("mapId1:nodeId1:CORE", 1L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxMapRevision("mapId1:nodeId1:CORE", 1L),
 				Arrays.asList(genericEvent1));
-		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxVersion("mapId1:nodeId1:CORE", 0L),
+		assertListsAreEqualIgnoringOrder(mongoDbEventStore.findByIdAndMaxMapRevision("mapId1:nodeId1:CORE", 0L),
 				Arrays.asList());
+	}
+	
+	@Test
+	public void testUpdateOrdering()
+	{
+		mongoDbEventStore.deleteAll();
+		
+		GenericEvent genericEvent3 = new GenericEvent("mapId1", "nodeId1", "CORE", 2L, 3L, "{\"content\": \"json1v2\");");
+		GenericEvent genericEvent1 = new GenericEvent("mapId1", "nodeId1", "CORE", 2L, 1L, "{\"content\": \"json1v2\");");
+		GenericEvent genericEvent2 = new GenericEvent("mapId1", "nodeId1", "CORE", 2L, 2L, "{\"content\": \"json1v2\");");
+
+		mongoDbEventStore.store(genericEvent3);
+		mongoDbEventStore.store(genericEvent1);
+		mongoDbEventStore.store(genericEvent2);
+		
+		final List<GenericEvent> actual = mongoDbEventStore.findByIdAndMaxMapRevision("mapId1:nodeId1:CORE", 2L);
+		Assert.assertEquals(3, actual.size());
+		Assert.assertEquals(genericEvent1, actual.get(0));
+		Assert.assertEquals(genericEvent2, actual.get(1));
+		Assert.assertEquals(genericEvent3, actual.get(2));
 	}
 }

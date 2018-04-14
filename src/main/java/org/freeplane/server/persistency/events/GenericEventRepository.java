@@ -9,8 +9,8 @@ public interface GenericEventRepository extends MongoRepository<GenericEvent, St
 	
 	// get a particular version of a document
 	GenericEvent findByKey(CompositeKey id);
-	default GenericEvent findByKey(final String id, final long version) {
-		CompositeKey key = new CompositeKey(id, version);
+	default GenericEvent findByKey(final String id, final long version, final long eventIndex) {
+		CompositeKey key = new CompositeKey(id, version, eventIndex);
 		return findByKey(key);
 	}
 	
