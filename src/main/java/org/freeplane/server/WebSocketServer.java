@@ -6,15 +6,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.freeplane.collaboration.event.MapUpdated;
+import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
 import org.freeplane.collaboration.event.messages.ImmutableMapCreated;
 import org.freeplane.collaboration.event.messages.ImmutableMapId;
 import org.freeplane.collaboration.event.messages.ImmutableMessageId;
 import org.freeplane.collaboration.event.messages.MapCreateRequested;
 import org.freeplane.collaboration.event.messages.MapCreated;
 import org.freeplane.collaboration.event.messages.MapId;
+import org.freeplane.collaboration.event.messages.MapUpdateRequested;
 import org.freeplane.collaboration.event.messages.Message;
+import org.freeplane.collaboration.event.messages.UpdateBlockCompleted;
+import org.freeplane.server.genericmessages.GenericMapCreateRequested;
+import org.freeplane.server.genericmessages.GenericMapUpdateRequested;
+import org.freeplane.server.genericmessages.GenericMessage;
 import org.freeplane.server.persistency.MongoDbEventStore;
-import org.freeplane.server.persistency.events.GenericEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +30,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Component
 public class WebSocketServer extends TextWebSocketHandler {
@@ -41,11 +48,11 @@ public class WebSocketServer extends TextWebSocketHandler {
 	
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
-    	logger.info("Server received text: {}", message.getPayload());
-    	
-    	Message msg = objectMapper.readValue(message.getPayload(), Message.class);
+//    	logger.info("Server received text: {}", message.getPayload());
+    	GenericMessage msg = objectMapper.readValue(message.getPayload(), GenericMessage.class);
 		logger.info("Message received: {}", msg);
-    	if (msg instanceof MapCreateRequested)
+		
+    	if (msg instanceof GenericMapCreateRequested)
     	{
     		logger.info("MapCreateRequested received!");
     		ImmutableMapId mapId = ImmutableMapId.of("mapIdFromServer");
@@ -55,18 +62,30 @@ public class WebSocketServer extends TextWebSocketHandler {
     				.build();
     		session.sendMessage(new TextMessage(objectMapper.writeValueAsString(mapCreated)));
     	}
-    	
-    	//GenericUpdateBlockCompleted serverUpdatesFinished = objectMapper.readValue(message.getPayload(), GenericUpdateBlockCompleted.class);
-//    	GenericUpdateBlockCompleted serverUpdatesFinished = objectMapper.readValue(message.getPayload(), GenericUpdateBlockCompleted.class);
-//    	logger.info("Server received message: {}", serverUpdatesFinished);
-//    	for(WebSocketSession webSocketSession : sessions) {
-//    		webSocketSession.sendMessage(new TextMessage(objectMapper.writeValueAsString(serverUpdatesFinished)));
-//    	}
+    	else if (msg instanceof GenericMapUpdateRequested)
+    	{
+    		MapId correspondingMsgId = session2MapId.get(session);
+    		
+    		logger.info("MapUpdateRequested received!");
+    		GenericMapUpdateRequested msgMapUpdateRequested = (GenericMapUpdateRequested)msg;
+    		GenericUpdateBlockCompleted updateBlockCompleted = msgMapUpdateRequested.update();
+    		
+//    		logger.info("updateBlockCompleted: {}", updateBlockCompleted);
+    		for (ObjectNode event : updateBlockCompleted.updateBlock())
+    		{
+//    			GenericEvent genericEvent = new GenericEvent.Builder()
+//    			 	.mapId(correspondingMsgId.value())
+//    			 	.nodeId("DUMMYNODEID")
+//    			 	.
+    			logger.info("ObjectNode: {}", event.toString());
+    		}
+    		
+    		// distribute to clients as GenericUpdateBlockCompleted!!
+    	}
     }
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		//the messages will be broadcasted to all users
 		sessions.add(session);
 	}
 

@@ -77,6 +77,12 @@ public class GenericEvent {
 			return this;
 		}
 		
+		public Builder json(String json)
+		{
+			this.json = json;
+			return this;
+		}
+		
 		public GenericEvent buildInitialEvent()
 		{
 			mapRevision = 1L;
