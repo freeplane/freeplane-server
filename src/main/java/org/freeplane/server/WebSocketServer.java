@@ -46,6 +46,13 @@ public class WebSocketServer extends TextWebSocketHandler {
 	List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 	Map<WebSocketSession,MapId> session2MapId = new HashMap<>();
 	
+	// many clients:
+	// server tracks synched maprevision and mapid for all maps!
+	// status=ACCEPTED: no contention
+	// status=MERGED: events from different clients were reordered if client-maprevision is already used!
+	//                change maprevision for some clients!
+	// 1 thread per mapid for sending updates (TODO: new message on freeplane-events "MapUpdateDistributed")
+	
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
 //    	logger.info("Server received text: {}", message.getPayload());
@@ -80,7 +87,9 @@ public class WebSocketServer extends TextWebSocketHandler {
     			logger.info("ObjectNode: {}", event.toString());
     		}
     		
-    		// distribute to clients as GenericUpdateBlockCompleted!!
+    		// TODO: send status with MapUpdateProcessed! 
+    		
+    		// later: distribute to clients as GenericUpdateBlockCompleted!!
     	}
     }
 
