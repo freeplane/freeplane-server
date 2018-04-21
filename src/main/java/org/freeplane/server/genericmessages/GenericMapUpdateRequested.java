@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Immutable
 @JsonSerialize(as = ImmutableGenericMapUpdateRequested.class)
 @JsonDeserialize(as = ImmutableGenericMapUpdateRequested.class)
-public interface GenericMapUpdateRequested extends Event, GenericMessage {
+public interface GenericMapUpdateRequested extends Event {
 	@Override @Default
 	default MessageId messageId() {return MessageId.random();}
 	@Parameter Credentials credentials();

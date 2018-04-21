@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.freeplane.collaboration.event.MapUpdated;
+import javax.annotation.PostConstruct;
+
 import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
 import org.freeplane.collaboration.event.messages.ImmutableMapCreated;
 import org.freeplane.collaboration.event.messages.ImmutableMapId;
@@ -14,12 +15,9 @@ import org.freeplane.collaboration.event.messages.ImmutableMessageId;
 import org.freeplane.collaboration.event.messages.MapCreateRequested;
 import org.freeplane.collaboration.event.messages.MapCreated;
 import org.freeplane.collaboration.event.messages.MapId;
-import org.freeplane.collaboration.event.messages.MapUpdateRequested;
 import org.freeplane.collaboration.event.messages.Message;
-import org.freeplane.collaboration.event.messages.UpdateBlockCompleted;
-import org.freeplane.server.genericmessages.GenericMapCreateRequested;
 import org.freeplane.server.genericmessages.GenericMapUpdateRequested;
-import org.freeplane.server.genericmessages.GenericMessage;
+import org.freeplane.server.genericmessages.ImmutableGenericMapUpdateRequested;
 import org.freeplane.server.persistency.MongoDbEventStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,36 +28,42 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Component
 public class WebSocketServer extends TextWebSocketHandler {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
 
 	@Autowired
 	private ObjectMapper objectMapper;
-	
+
 	@Autowired
 	private MongoDbEventStore mongoDbEventStore;
-	
+
+	@PostConstruct
+	public void init(){
+		objectMapper.registerSubtypes(new NamedType(ImmutableGenericMapUpdateRequested.class, "MapUpdateRequested"));
+	}
+
 	List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 	Map<WebSocketSession,MapId> session2MapId = new HashMap<>();
-	
+
 	// many clients:
 	// server tracks synched maprevision and mapid for all maps!
 	// status=ACCEPTED: no contention
 	// status=MERGED: events from different clients were reordered if client-maprevision is already used!
 	//                change maprevision for some clients!
 	// 1 thread per mapid for sending updates (TODO: new message on freeplane-events "MapUpdateDistributed")
-	
+
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
 //    	logger.info("Server received text: {}", message.getPayload());
-    	GenericMessage msg = objectMapper.readValue(message.getPayload(), GenericMessage.class);
+    	Message msg = objectMapper.readValue(message.getPayload(), Message.class);
 		logger.info("Message received: {}", msg);
-		
-    	if (msg instanceof GenericMapCreateRequested)
+
+    	if (msg instanceof MapCreateRequested)
     	{
     		logger.info("MapCreateRequested received!");
     		ImmutableMapId mapId = ImmutableMapId.of("mapIdFromServer");
@@ -72,11 +76,11 @@ public class WebSocketServer extends TextWebSocketHandler {
     	else if (msg instanceof GenericMapUpdateRequested)
     	{
     		MapId correspondingMsgId = session2MapId.get(session);
-    		
+
     		logger.info("MapUpdateRequested received!");
     		GenericMapUpdateRequested msgMapUpdateRequested = (GenericMapUpdateRequested)msg;
     		GenericUpdateBlockCompleted updateBlockCompleted = msgMapUpdateRequested.update();
-    		
+
 //    		logger.info("updateBlockCompleted: {}", updateBlockCompleted);
     		for (ObjectNode event : updateBlockCompleted.updateBlock())
     		{
@@ -86,9 +90,9 @@ public class WebSocketServer extends TextWebSocketHandler {
 //    			 	.
     			logger.info("ObjectNode: {}", event.toString());
     		}
-    		
-    		// TODO: send status with MapUpdateProcessed! 
-    		
+
+    		// TODO: send status with MapUpdateProcessed!
+
     		// later: distribute to clients as GenericUpdateBlockCompleted!!
     	}
     }
