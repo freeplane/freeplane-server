@@ -11,14 +11,18 @@ import javax.annotation.PostConstruct;
 import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
 import org.freeplane.collaboration.event.messages.ImmutableMapCreated;
 import org.freeplane.collaboration.event.messages.ImmutableMapId;
+import org.freeplane.collaboration.event.messages.ImmutableMapUpdateProcessed;
 import org.freeplane.collaboration.event.messages.ImmutableMessageId;
 import org.freeplane.collaboration.event.messages.MapCreateRequested;
 import org.freeplane.collaboration.event.messages.MapCreated;
 import org.freeplane.collaboration.event.messages.MapId;
+import org.freeplane.collaboration.event.messages.MapUpdateProcessed;
+import org.freeplane.collaboration.event.messages.MapUpdateProcessed.UpdateStatus;
 import org.freeplane.collaboration.event.messages.Message;
 import org.freeplane.server.genericmessages.GenericMapUpdateRequested;
 import org.freeplane.server.genericmessages.ImmutableGenericMapUpdateRequested;
 import org.freeplane.server.persistency.MongoDbEventStore;
+import org.freeplane.server.persistency.events.GenericEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,6 +54,9 @@ public class WebSocketServer extends TextWebSocketHandler {
 
 	List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 	Map<WebSocketSession,MapId> session2MapId = new HashMap<>();
+	
+
+	// later: distribute to clients as GenericUpdateBlockCompleted!!
 
 	// many clients:
 	// server tracks synched maprevision and mapid for all maps!
@@ -81,19 +89,33 @@ public class WebSocketServer extends TextWebSocketHandler {
     		GenericMapUpdateRequested msgMapUpdateRequested = (GenericMapUpdateRequested)msg;
     		GenericUpdateBlockCompleted updateBlockCompleted = msgMapUpdateRequested.update();
 
-//    		logger.info("updateBlockCompleted: {}", updateBlockCompleted);
-    		for (ObjectNode event : updateBlockCompleted.updateBlock())
+    		int eventCounter = 1;
+    		for (ObjectNode json : updateBlockCompleted.updateBlock())
     		{
-//    			GenericEvent genericEvent = new GenericEvent.Builder()
-//    			 	.mapId(correspondingMsgId.value())
-//    			 	.nodeId("DUMMYNODEID")
-//    			 	.
-    			logger.info("ObjectNode: {}", event.toString());
+    			final String contentType = json.get("contentType").toString();
+    			final JsonNode nodeId = json.get("nodeId");
+    			
+    			GenericEvent genericEvent = new GenericEvent.Builder()
+    			 	.mapId(correspondingMsgId.value())
+    			 	.nodeIdIf(nodeId != null, nodeId != null ? nodeId.toString() : null)	
+    			 	.contentType(contentType)
+    			 	.mapRevision(updateBlockCompleted.mapRevision())
+    			 	.eventIndex(eventCounter)
+    			 	.json(json.toString())
+    			 	.build();
+    			
+    			mongoDbEventStore.store(genericEvent);
+    			
+//    			logger.info("ObjectNode: {}", json.toString());
+    			eventCounter++;
     		}
 
-    		// TODO: send status with MapUpdateProcessed!
-
-    		// later: distribute to clients as GenericUpdateBlockCompleted!!
+    		MapUpdateProcessed mapUpdateProcessed = ImmutableMapUpdateProcessed.builder()
+    				.from(msg)
+    				.requestId(ImmutableMessageId.of("myServerMsgId4UpdateStatus"))
+    				.status(UpdateStatus.ACCEPTED)
+    				.build();
+    		session.sendMessage(new TextMessage(objectMapper.writeValueAsString(mapUpdateProcessed)));
     	}
     }
 

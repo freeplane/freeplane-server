@@ -53,9 +53,16 @@ public class GenericEvent {
 			return this;
 		}
 
-		public Builder nodeId(String nodeId)
+		public Builder nodeIdIf(boolean condition, String nodeId)
 		{
-			this.nodeId = nodeId;
+			if (condition)
+			{
+				this.nodeId = nodeId;
+			}
+			else
+			{
+				this.nodeId = "DUMMYNODEID";
+			}
 			return this;
 		}
 
