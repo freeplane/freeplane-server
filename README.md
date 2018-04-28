@@ -4,7 +4,7 @@
 * if necessary: change spring.data.mongodb.* in application.properties
 * use (databases are automatically created :-))
 
-# Getting statted
+# Getting started
 - checkout https://github.com/freeplane/freeplane-events
 - gradle build publishToMavenLocal
 - checkout https://github.com/freeplane/freeplane-server
@@ -14,7 +14,7 @@
 - gradle build cleanEclipse eclipse
 * run a basic use case:
   * run org.freeplane.server.Application (as Java Application) from server repo
-  * run freeplane-osgi launcher (freeplane repo)
+  * run freeplane-osgi launcher from freeplane repo
     * select the websockets check box
 	* click button -> message interchange is triggered
     
