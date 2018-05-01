@@ -2,23 +2,30 @@ package org.freeplane.server;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.PostConstruct;
 
+import org.freeplane.collaboration.event.MapUpdated;
 import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
 import org.freeplane.collaboration.event.messages.ImmutableMapCreated;
 import org.freeplane.collaboration.event.messages.ImmutableMapId;
+import org.freeplane.collaboration.event.messages.ImmutableMapUpdateDistributed;
 import org.freeplane.collaboration.event.messages.ImmutableMapUpdateProcessed;
 import org.freeplane.collaboration.event.messages.ImmutableMessageId;
+import org.freeplane.collaboration.event.messages.ImmutableUpdateBlockCompleted;
+import org.freeplane.collaboration.event.messages.ImmutableUserId;
 import org.freeplane.collaboration.event.messages.MapCreateRequested;
 import org.freeplane.collaboration.event.messages.MapCreated;
 import org.freeplane.collaboration.event.messages.MapId;
+import org.freeplane.collaboration.event.messages.MapUpdateDistributed;
 import org.freeplane.collaboration.event.messages.MapUpdateProcessed;
 import org.freeplane.collaboration.event.messages.MapUpdateProcessed.UpdateStatus;
 import org.freeplane.collaboration.event.messages.Message;
+import org.freeplane.collaboration.event.messages.UpdateBlockCompleted;
 import org.freeplane.server.genericmessages.GenericMapUpdateRequested;
 import org.freeplane.server.genericmessages.ImmutableGenericMapUpdateRequested;
 import org.freeplane.server.persistency.MongoDbEventStore;
@@ -69,7 +76,7 @@ public class WebSocketServer extends TextWebSocketHandler {
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
 //    	logger.info("Server received text: {}", message.getPayload());
     	Message msg = objectMapper.readValue(message.getPayload(), Message.class);
-		logger.info("Message received: {}", msg);
+		logger.info("Message received: {}", msg.getClass().getSimpleName());
 
     	if (msg instanceof MapCreateRequested)
     	{
@@ -89,6 +96,7 @@ public class WebSocketServer extends TextWebSocketHandler {
     		GenericMapUpdateRequested msgMapUpdateRequested = (GenericMapUpdateRequested)msg;
     		GenericUpdateBlockCompleted updateBlockCompleted = msgMapUpdateRequested.update();
 
+    		List<GenericEvent> theseEvents = new LinkedList<>();
     		int eventCounter = 1;
     		for (ObjectNode json : updateBlockCompleted.updateBlock())
     		{
@@ -105,6 +113,7 @@ public class WebSocketServer extends TextWebSocketHandler {
     			 	.build();
     			
     			mongoDbEventStore.store(genericEvent);
+    			theseEvents.add(genericEvent);
     			
 //    			logger.info("ObjectNode: {}", json.toString());
     			eventCounter++;
@@ -113,9 +122,28 @@ public class WebSocketServer extends TextWebSocketHandler {
     		MapUpdateProcessed mapUpdateProcessed = ImmutableMapUpdateProcessed.builder()
     				.from(msg)
     				.requestId(ImmutableMessageId.of("myServerMsgId4UpdateStatus"))
-    				.status(UpdateStatus.ACCEPTED)
+    				.status(UpdateStatus.MERGED)
     				.build();
     		session.sendMessage(new TextMessage(objectMapper.writeValueAsString(mapUpdateProcessed)));
+    		
+    		// distribute updates back to client
+    		List<MapUpdated> eventsForClient = new LinkedList<>();
+    		for (GenericEvent thisEvent : theseEvents)
+    		{
+    			eventsForClient.add(objectMapper.readValue(thisEvent.getJson(), MapUpdated.class));
+    		}
+    		UpdateBlockCompleted updateBlockCompletedForClient = ImmutableUpdateBlockCompleted.builder()
+    				.userId(ImmutableUserId.of("DUMMYUSER"))
+    				.mapId(correspondingMsgId)
+    				.mapRevision(updateBlockCompleted.mapRevision() + 1L)
+    				.updateBlock(eventsForClient)
+    				.build();
+    		MapUpdateDistributed mapUpdateDistributed = ImmutableMapUpdateDistributed.builder()
+    				.from(msg)
+    				.requestId(ImmutableMessageId.of("myMsgMapUpdateDistributed"))
+    				.update(updateBlockCompletedForClient)
+    				.build();
+    		session.sendMessage(new TextMessage(objectMapper.writeValueAsString(mapUpdateDistributed)));
     	}
     }
 
