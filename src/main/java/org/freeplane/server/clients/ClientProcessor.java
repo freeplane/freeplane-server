@@ -8,21 +8,29 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.freeplane.collaboration.event.MapUpdated;
 import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
+import org.freeplane.collaboration.event.messages.ImmutableMapUpdateDistributed;
+import org.freeplane.collaboration.event.messages.ImmutableMapUpdateProcessed;
+import org.freeplane.collaboration.event.messages.ImmutableMessageId;
 import org.freeplane.collaboration.event.messages.ImmutableUpdateBlockCompleted;
 import org.freeplane.collaboration.event.messages.ImmutableUserId;
 import org.freeplane.collaboration.event.messages.MapId;
+import org.freeplane.collaboration.event.messages.MapUpdateDistributed;
+import org.freeplane.collaboration.event.messages.MapUpdateProcessed;
 import org.freeplane.collaboration.event.messages.MapUpdateProcessed.UpdateStatus;
 import org.freeplane.collaboration.event.messages.UpdateBlockCompleted;
 import org.freeplane.server.genericmessages.ImmutableGenericMapUpdateRequested;
 import org.freeplane.server.persistency.MongoDbEventStore;
 import org.freeplane.server.persistency.events.GenericEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -31,13 +39,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @Component
 public class ClientProcessor {
 
+	protected static final Logger logger = LoggerFactory.getLogger(ClientProcessor.class);
+
 	@Autowired
 	private ObjectMapper objectMapper;
 
 	@Autowired
-	private MongoDbEventStore mongoDbEventStore;
+	protected MongoDbEventStore mongoDbEventStore;
 	
-	private Map<WebSocketSession, ClientContext> clientContexts = new HashMap<>();
+	protected Map<WebSocketSession, ClientContext> clientContexts = new HashMap<>();
 
 	@PostConstruct
 	public void init(){
@@ -47,10 +57,28 @@ public class ClientProcessor {
 		mongoDbEventStore.deleteAll();
 	}
 	
-	private <T> T serialize(String text, Class<T> targetClass)
+	public <T> T serialize(String text, Class<T> targetClass)
 	{
 		try {
 			return objectMapper.readValue(text, targetClass);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public String deserialize(Object object)
+	{
+		try {
+			return objectMapper.writeValueAsString(object);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private void sendMessage(WebSocketSession session, Object object)
+	{
+		try {
+			session.sendMessage(new TextMessage(deserialize(object)));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -67,7 +95,7 @@ public class ClientProcessor {
 		return newClientContext.getMapId();
 	}
 
-	public Pair<UpdateStatus, UpdateBlockCompleted> processSingleClientUpdates(WebSocketSession session, GenericUpdateBlockCompleted update)
+	public void processSingleClientUpdates(WebSocketSession session, GenericUpdateBlockCompleted update)
 	{
 		MapId correspondingMapId = clientContexts.get(session).getMapId();
 		
@@ -104,6 +132,25 @@ public class ClientProcessor {
 				.updateBlock(eventsForClient)
 				.build();
 		
-		return Pair.of(UpdateStatus.MERGED, updateBlockCompletedForClient);
+		distributeUpdateBackToClient(session, UpdateStatus.MERGED, updateBlockCompletedForClient);
+	}
+	
+	public void distributeUpdateBackToClient(WebSocketSession session, UpdateStatus status, UpdateBlockCompleted updateBlockCompleted)
+	{
+		MapUpdateProcessed mapUpdateProcessed = ImmutableMapUpdateProcessed.builder()
+				.messageId(ImmutableMessageId.of("myServerMsgId"))
+				.requestId(ImmutableMessageId.of("myServerMsgId4UpdateStatus"))
+				.status(status)
+				.build();
+
+		sendMessage(session, mapUpdateProcessed);
+		
+		MapUpdateDistributed mapUpdateDistributed = ImmutableMapUpdateDistributed.builder()
+				.messageId(ImmutableMessageId.of("myServerMsgId2"))
+				.requestId(ImmutableMessageId.of("myMsgMapUpdateDistributed"))
+				.update(updateBlockCompleted)
+				.build();
+
+		sendMessage(session, mapUpdateDistributed);
 	}
 }

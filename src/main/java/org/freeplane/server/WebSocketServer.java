@@ -4,20 +4,13 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
 import org.freeplane.collaboration.event.messages.ImmutableMapCreated;
-import org.freeplane.collaboration.event.messages.ImmutableMapUpdateDistributed;
-import org.freeplane.collaboration.event.messages.ImmutableMapUpdateProcessed;
 import org.freeplane.collaboration.event.messages.ImmutableMessageId;
 import org.freeplane.collaboration.event.messages.MapCreateRequested;
 import org.freeplane.collaboration.event.messages.MapCreated;
 import org.freeplane.collaboration.event.messages.MapId;
-import org.freeplane.collaboration.event.messages.MapUpdateDistributed;
-import org.freeplane.collaboration.event.messages.MapUpdateProcessed;
-import org.freeplane.collaboration.event.messages.MapUpdateProcessed.UpdateStatus;
 import org.freeplane.collaboration.event.messages.Message;
-import org.freeplane.collaboration.event.messages.UpdateBlockCompleted;
 import org.freeplane.server.clients.ClientProcessor;
 import org.freeplane.server.genericmessages.GenericMapUpdateRequested;
 import org.freeplane.server.genericmessages.ImmutableGenericMapUpdateRequested;
@@ -78,22 +71,7 @@ public class WebSocketServer extends TextWebSocketHandler {
     		GenericMapUpdateRequested msgMapUpdateRequested = (GenericMapUpdateRequested)msg;
     		GenericUpdateBlockCompleted updateBlockCompleted = msgMapUpdateRequested.update();
 
-    		Pair<UpdateStatus, UpdateBlockCompleted> result = clientProcessor.processSingleClientUpdates(session, updateBlockCompleted);
-    		
-    		MapUpdateProcessed mapUpdateProcessed = ImmutableMapUpdateProcessed.builder()
-    				.messageId(ImmutableMessageId.of("myServerMsgId"))
-    				.requestId(ImmutableMessageId.of("myServerMsgId4UpdateStatus"))
-    				.status(result.getLeft())
-    				.build();
-
-    		session.sendMessage(new TextMessage(objectMapper.writeValueAsString(mapUpdateProcessed)));
-    		
-    		MapUpdateDistributed mapUpdateDistributed = ImmutableMapUpdateDistributed.builder()
-    				.from(msg)
-    				.requestId(ImmutableMessageId.of("myMsgMapUpdateDistributed"))
-    				.update(result.getRight())
-    				.build();
-    		session.sendMessage(new TextMessage(objectMapper.writeValueAsString(mapUpdateDistributed)));
+    		clientProcessor.processSingleClientUpdates(session, updateBlockCompleted);  		
     	}
     }
 
