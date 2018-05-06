@@ -24,4 +24,6 @@ public interface EventStore {
 	List<GenericEvent> findByIdAndMaxMapRevision(final String id, final long maxMapRevision);
 	
 	List<GenericEvent> findByIdAndMinMapRevision(final String id, final long minMapRevision);
+	
+	List<GenericEvent> findByMapIdAndMapRevision(final String mapId, final long mapRevision);
 }

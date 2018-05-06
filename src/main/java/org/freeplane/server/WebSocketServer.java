@@ -90,13 +90,14 @@ public class WebSocketServer extends TextWebSocketHandler {
     	}
     	else if (msg instanceof GenericMapUpdateRequested)
     	{
-    		MapId correspondingMsgId = session2MapId.get(session);
+    		MapId correspondingMapId = session2MapId.get(session);
 
     		logger.info("MapUpdateRequested received!");
     		GenericMapUpdateRequested msgMapUpdateRequested = (GenericMapUpdateRequested)msg;
     		GenericUpdateBlockCompleted updateBlockCompleted = msgMapUpdateRequested.update();
 
-    		List<GenericEvent> theseEvents = new LinkedList<>();
+    		// TODO: for testing!
+    		mongoDbEventStore.deleteAll();
     		int eventCounter = 1;
     		for (ObjectNode json : updateBlockCompleted.updateBlock())
     		{
@@ -104,7 +105,7 @@ public class WebSocketServer extends TextWebSocketHandler {
     			final JsonNode nodeId = json.get("nodeId");
     			
     			GenericEvent genericEvent = new GenericEvent.Builder()
-    			 	.mapId(correspondingMsgId.value())
+    			 	.mapId(correspondingMapId.value())
     			 	.nodeIdIf(nodeId != null, nodeId != null ? nodeId.toString() : null)	
     			 	.contentType(contentType)
     			 	.mapRevision(updateBlockCompleted.mapRevision())
@@ -113,7 +114,6 @@ public class WebSocketServer extends TextWebSocketHandler {
     			 	.build();
     			
     			mongoDbEventStore.store(genericEvent);
-    			theseEvents.add(genericEvent);
     			
 //    			logger.info("ObjectNode: {}", json.toString());
     			eventCounter++;
@@ -128,13 +128,13 @@ public class WebSocketServer extends TextWebSocketHandler {
     		
     		// distribute updates back to client
     		List<MapUpdated> eventsForClient = new LinkedList<>();
-    		for (GenericEvent thisEvent : theseEvents)
+    		for (GenericEvent thisEvent : mongoDbEventStore.findByMapIdAndMapRevision(correspondingMapId.value(), updateBlockCompleted.mapRevision()))
     		{
     			eventsForClient.add(objectMapper.readValue(thisEvent.getJson(), MapUpdated.class));
     		}
     		UpdateBlockCompleted updateBlockCompletedForClient = ImmutableUpdateBlockCompleted.builder()
     				.userId(ImmutableUserId.of("DUMMYUSER"))
-    				.mapId(correspondingMsgId)
+    				.mapId(correspondingMapId)
     				.mapRevision(updateBlockCompleted.mapRevision() + 1L)
     				.updateBlock(eventsForClient)
     				.build();

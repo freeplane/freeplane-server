@@ -81,4 +81,13 @@ public class MongoDbEventStore implements EventStore {
 		return mongoTemplate.find(query, GenericEvent.class);
 	}
 
+	@Override
+	public List<GenericEvent> findByMapIdAndMapRevision(final String mapId, final long mapRevision)
+	{
+		Query query = new Query();
+		query.addCriteria(Criteria.where("mapId").is(mapId));
+		query.addCriteria(Criteria.where("_id.mapRevision").is(mapRevision));
+		query.with(new Sort(Sort.Direction.ASC, "eventIndex"));
+		return mongoTemplate.find(query, GenericEvent.class);
+	}
 }

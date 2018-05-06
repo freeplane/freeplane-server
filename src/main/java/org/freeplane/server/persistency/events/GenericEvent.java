@@ -197,6 +197,7 @@ public class GenericEvent {
 	
 	// without this, I get:
 	// MappingInstantiationException: Failed to instantiate org.freeplane.server.persistency.events.GenericEvent using constructor NO_CONSTRUCTOR with arguments 
+	@SuppressWarnings("unused")
 	private GenericEvent() {
 		this(null, null, null, null);
 	}
