@@ -1,3 +1,6 @@
+# Design
+* http://www.plantuml.com/plantuml/png/RL6xSi8m4Epr5IfX9l096GfIK41ZCgbFqiKuM8_HoP1Cmh_dP6M87tJIxjxkwhIX135rjXMdng146zANj6WLHXB2WKKAe54QRw5nQmk1vBTeNCBudl4zX2hvY4AtG9IlcPVviDlAY7L3B3tWbO45Jn_OSSayTOfqR1GUFJElmK12oeAToNI8NYFHb7gINRakfRY9FiolLlSI_qYPsd8uPtJCYL9mJWpUKhWAdS7OFuBuMC35alDcipdgUJGcM3RO6XW8x4xhAoho-emfRwSqUKDLzL25yV8NU09dMZpYPzeZ4TISEwqXvGVeCtd7ILCBRZFyg7LUnmFHprWrwl-ullMkzaPnntq-RTNB1LtgTpxtk__6JMpOjBFjBm00
+
 # Installing / configuring mongodb
 * Install mongodb server ("mongod") and mongodb client ("mongo", but there are also GUI clients)
   (these are usually in one package)
