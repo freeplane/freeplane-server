@@ -1,8 +1,8 @@
-package org.freeplane.server.persistency.events;
+package org.freeplane.server.adapters.mongodb.events;
 
 import java.util.List;
 
-import org.freeplane.server.persistency.events.GenericEvent.CompositeKey;
+import org.freeplane.server.adapters.mongodb.events.GenericEvent.CompositeKey;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface GenericEventRepository extends MongoRepository<GenericEvent, String> {

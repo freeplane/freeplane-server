@@ -1,9 +1,9 @@
-package org.freeplane.server.persistency;
+package org.freeplane.server.adapters.mongodb;
 
 import java.util.List;
 
-import org.freeplane.server.persistency.events.GenericEvent;
-import org.freeplane.server.persistency.events.GenericEventRepository;
+import org.freeplane.server.adapters.mongodb.events.GenericEvent;
+import org.freeplane.server.adapters.mongodb.events.GenericEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;

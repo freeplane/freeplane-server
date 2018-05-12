@@ -1,4 +1,4 @@
-package org.freeplane.server.persistency.events;
+package org.freeplane.server.adapters.mongodb.events;
 
 import java.io.Serializable;
 import java.time.Instant;

@@ -1,4 +1,4 @@
-package org.freeplane.server;
+package org.freeplane.server.adapters.websockets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

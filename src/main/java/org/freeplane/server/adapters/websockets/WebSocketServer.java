@@ -1,19 +1,15 @@
-package org.freeplane.server;
+package org.freeplane.server.adapters.websockets;
 
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
 import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
-import org.freeplane.collaboration.event.messages.ImmutableMapCreated;
-import org.freeplane.collaboration.event.messages.ImmutableMessageId;
 import org.freeplane.collaboration.event.messages.MapCreateRequested;
-import org.freeplane.collaboration.event.messages.MapCreated;
-import org.freeplane.collaboration.event.messages.MapId;
 import org.freeplane.collaboration.event.messages.Message;
-import org.freeplane.server.clients.ClientProcessor;
+import org.freeplane.server.domain.maps.Maps;
 import org.freeplane.server.genericmessages.GenericMapUpdateRequested;
-import org.freeplane.server.genericmessages.ImmutableGenericMapUpdateRequested;
+import org.freeplane.server.json.MessageEncoderDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +18,20 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-
 @Component
 public class WebSocketServer extends TextWebSocketHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
 
 	@Autowired
-	private ObjectMapper objectMapper;
+	private MessageEncoderDecoder messageEncoderDecoder;
 
 	@Autowired
-	ClientProcessor clientProcessor;
-
+	private Maps maps;
+	
 	@PostConstruct
 	public void init(){
-		objectMapper.registerSubtypes(new NamedType(ImmutableGenericMapUpdateRequested.class, "MapUpdateRequested"));
+		WebSocketClient.setMessageEncoderDecoder(messageEncoderDecoder);
 	}
 
 	// many clients:
@@ -51,19 +44,13 @@ public class WebSocketServer extends TextWebSocketHandler {
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
 //    	logger.info("Server received text: {}", message.getPayload());
-    	Message msg = objectMapper.readValue(message.getPayload(), Message.class);
+    	Message msg = messageEncoderDecoder.deserialize(message.getPayload(), Message.class);
 		logger.info("Message received: {}", msg.getClass().getSimpleName());
 
     	if (msg instanceof MapCreateRequested)
     	{
     		logger.info("MapCreateRequested received!");
-    		MapId mapId = clientProcessor.registerNewMap(session);
-    		MapCreated mapCreated = ImmutableMapCreated.builder()
-    				.from(msg)
-    				.id(mapId)
-    				.requestId(ImmutableMessageId.of("myServerMsgId"))
-    				.build();
-    		session.sendMessage(new TextMessage(objectMapper.writeValueAsString(mapCreated)));
+    		maps.registerNewMap(new WebSocketClient(session), "initName");
     	}
     	else if (msg instanceof GenericMapUpdateRequested)
     	{
@@ -71,7 +58,7 @@ public class WebSocketServer extends TextWebSocketHandler {
     		GenericMapUpdateRequested msgMapUpdateRequested = (GenericMapUpdateRequested)msg;
     		GenericUpdateBlockCompleted updateBlockCompleted = msgMapUpdateRequested.update();
 
-    		clientProcessor.processSingleClientUpdates(session, updateBlockCompleted);  		
+    		maps.processMapUpdates(new WebSocketClient(session), updateBlockCompleted);
     	}
     }
 

@@ -1,8 +1,8 @@
-package org.freeplane.server.persistency;
+package org.freeplane.server.adapters.mongodb;
 
 import java.util.List;
 
-import org.freeplane.server.persistency.events.GenericEvent;
+import org.freeplane.server.adapters.mongodb.events.GenericEvent;
 
 public interface EventStore {
 	
