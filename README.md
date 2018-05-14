@@ -1,5 +1,3 @@
-![Design](http://www.plantuml.com/plantuml/png/ZLDFRnC_4BtxKqnp-JNwjO4xLLKfSE2GYf8YpbvxafYiPoAFDw50lpkpThRPbWfnSJAUzzxyUUiRoJRbBhPc4pm2nbr-W8YnmIJ6a8qeE-iGF4SRQ1RjJk2d-T-rLWGMDGAOCxak9QIiLt2bnqT_qQS_upv8OBg6U0f46GdNGJAcMpmexDorGSaNFUfMQquBmlhdAHNj4xl43aKqzsNdRKPvWdGrdeAYV137HEZoCJqrZpeGPuGMLnbuLTjNx6kIHGC4oGj8jhaJY8gmQuJCK1KhnEvH86_mM1q2bKWo9-m1bZmusxO2yyAIMQ_wLCTe07rRnfH--FAoRsnPwCFDG3KcKCQqiWvF85FDg93gX-O64-RSjkXoOBggYElYHQs_x1fnAQZPIbe-aDia9kxahiCEhuQr7WSVyUITKO8CxFDOQmsB1kZeBydn_3KvSkxncKV3L2zOKmWacBBeRsPOtbtqZZCA_PV1sOHW6-xoO8bZogfofg1eIKSHi31NJspJuflxJKBhFp6tiE841qxRG6ijlb9X0tf0jbkKAgmzSVAO579s1YFtXlrFtavwowvXGfDZ-sFRwarnIOuB3p_Gb_4MTT7dnuMNB_Pn_0gjjpiLaja16s6tnU9tzVyhDijojSIqnrGgR2pv5k_nUnwa-_r_isuhJ2hzagDjZr_wRA67EQ5gxuhwzHmsJFcYaT6eXrCXaS3qZzE_FdnaMhDlL7ZH_tlVVDXhdV8O_knjU2QgTQD5kjZ-1W00 "Design") 
-
 # Installing / configuring mongodb
 * Install mongodb server ("mongod") and mongodb client ("mongo", but there are also GUI clients)
   (these are usually in one package)
@@ -20,6 +18,9 @@
     * select the websockets check box
 	* click button -> message interchange is triggered
     
+# Design
+![Design](http://www.plantuml.com/plantuml/png/ZLDFRnC_4BtxKqnp-JNwjO4xLLKfSE2GYf8YpbvxafYiPoAFDw50lpkpThRPbWfnSJAUzzxyUUiRoJRbBhPc4pm2nbr-W8YnmIJ6a8qeE-iGF4SRQ1RjJk2d-T-rLWGMDGAOCxak9QIiLt2bnqT_qQS_upv8OBg6U0f46GdNGJAcMpmexDorGSaNFUfMQquBmlhdAHNj4xl43aKqzsNdRKPvWdGrdeAYV137HEZoCJqrZpeGPuGMLnbuLTjNx6kIHGC4oGj8jhaJY8gmQuJCK1KhnEvH86_mM1q2bKWo9-m1bZmusxO2yyAIMQ_wLCTe07rRnfH--FAoRsnPwCFDG3KcKCQqiWvF85FDg93gX-O64-RSjkXoOBggYElYHQs_x1fnAQZPIbe-aDia9kxahiCEhuQr7WSVyUITKO8CxFDOQmsB1kZeBydn_3KvSkxncKV3L2zOKmWacBBeRsPOtbtqZZCA_PV1sOHW6-xoO8bZogfofg1eIKSHi31NJspJuflxJKBhFp6tiE841qxRG6ijlb9X0tf0jbkKAgmzSVAO579s1YFtXlrFtavwowvXGfDZ-sFRwarnIOuB3p_Gb_4MTT7dnuMNB_Pn_0gjjpiLaja16s6tnU9tzVyhDijojSIqnrGgR2pv5k_nUnwa-_r_isuhJ2hzagDjZr_wRA67EQ5gxuhwzHmsJFcYaT6eXrCXaS3qZzE_FdnaMhDlL7ZH_tlVVDXhdV8O_knjU2QgTQD5kjZ-1W00 "Design") 
+
 # TODO:
 * One client
     * Connect to server (web socket session) *check*
