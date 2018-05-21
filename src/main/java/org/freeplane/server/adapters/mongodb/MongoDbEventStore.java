@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.freeplane.server.adapters.mongodb.events.GenericEvent;
 import org.freeplane.server.adapters.mongodb.events.GenericEventRepository;
+import org.freeplane.server.domain.maps.EventStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;

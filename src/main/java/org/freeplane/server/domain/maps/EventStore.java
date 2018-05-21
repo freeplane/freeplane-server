@@ -1,4 +1,4 @@
-package org.freeplane.server.adapters.mongodb;
+package org.freeplane.server.domain.maps;
 
 import java.util.List;
 

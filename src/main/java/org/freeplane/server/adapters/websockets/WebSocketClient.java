@@ -31,4 +31,13 @@ public class WebSocketClient implements Client {
 		}
 	}
 
+	@Override
+	public boolean equals(Object other)
+	{
+		if (!(other instanceof WebSocketClient))
+		{
+			return false;
+		}
+		return webSocketSession.getId().equals(((WebSocketClient)other).webSocketSession.getId());
+	}
 }

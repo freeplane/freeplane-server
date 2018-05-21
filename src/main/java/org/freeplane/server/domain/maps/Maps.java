@@ -13,7 +13,6 @@ import org.freeplane.collaboration.event.messages.MapCreated;
 import org.freeplane.collaboration.event.messages.MapId;
 import org.freeplane.collaboration.event.messages.MapUpdateProcessed;
 import org.freeplane.collaboration.event.messages.MapUpdateProcessed.UpdateStatus;
-import org.freeplane.server.adapters.mongodb.MongoDbEventStore;
 import org.freeplane.server.adapters.mongodb.events.GenericEvent;
 import org.freeplane.server.json.MessageEncoderDecoder;
 import org.slf4j.Logger;
@@ -29,12 +28,18 @@ public class Maps {
 
 	protected static final Logger logger = LoggerFactory.getLogger(Maps.class);
 	
-	@Autowired
-	private Clients clients;
+	private final Clients clients;
 	
-	@Autowired
-	private MongoDbEventStore mongoDbEventStore;
+	private final EventStore eventStore;
 	
+	
+	@Autowired 
+	public Maps(Clients clients, EventStore eventStore) {
+		super();
+		this.clients = clients;
+		this.eventStore = eventStore;
+	}
+
 	@Autowired
 	private MessageEncoderDecoder messageEncoderDecoder;
 	
@@ -103,7 +108,7 @@ public class Maps {
 			 	.json(json.toString())
 			 	.build();
 			
-			mongoDbEventStore.store(genericEvent);
+			eventStore.store(genericEvent);
 			
 			eventCounter++;
 		}
