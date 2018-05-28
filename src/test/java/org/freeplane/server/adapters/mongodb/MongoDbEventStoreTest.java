@@ -1,4 +1,4 @@
-package org.freeplane.server.persistency;
+package org.freeplane.server.adapters.mongodb;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -47,7 +47,7 @@ public class MongoDbEventStoreTest {
 
 	@Configuration
 	@ComponentScan // need for autowiring MongoDbEventStore!
-	@EnableMongoRepositories("org.freeplane.server.persistency.events")
+	@EnableMongoRepositories("org.freeplane.server.adapters.mongodb.events")
 	@PropertySource("classpath:application.properties")
 	static class TestConfiguration {
 
