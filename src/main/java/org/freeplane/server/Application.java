@@ -10,11 +10,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
 @SpringBootApplication
+@EnableResourceServer
 @EnableMongoRepositories("org.freeplane.server.adapters.mongodb.events")
 public class Application {
 

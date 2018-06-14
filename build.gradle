@@ -66,6 +66,9 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.8'
 	
+	// https://mvnrepository.com/artifact/org.springframework.security.oauth/spring-security-oauth2
+	compile group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.3.RELEASE'
+
     testCompile("junit:junit")
 	testCompile 'org.mockito:mockito-core:2.7.22'
     testCompile("org.springframework.boot:spring-boot-starter-test")
