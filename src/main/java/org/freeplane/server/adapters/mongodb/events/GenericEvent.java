@@ -1,4 +1,4 @@
-package org.freeplane.server.persistency.events;
+package org.freeplane.server.adapters.mongodb.events;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -53,9 +53,16 @@ public class GenericEvent {
 			return this;
 		}
 
-		public Builder nodeId(String nodeId)
+		public Builder nodeIdIf(boolean condition, String nodeId)
 		{
-			this.nodeId = nodeId;
+			if (condition)
+			{
+				this.nodeId = nodeId;
+			}
+			else
+			{
+				this.nodeId = "DUMMYNODEID";
+			}
 			return this;
 		}
 
@@ -190,6 +197,7 @@ public class GenericEvent {
 	
 	// without this, I get:
 	// MappingInstantiationException: Failed to instantiate org.freeplane.server.persistency.events.GenericEvent using constructor NO_CONSTRUCTOR with arguments 
+	@SuppressWarnings("unused")
 	private GenericEvent() {
 		this(null, null, null, null);
 	}

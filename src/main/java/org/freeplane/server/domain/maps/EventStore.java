@@ -1,8 +1,8 @@
-package org.freeplane.server.persistency;
+package org.freeplane.server.domain.maps;
 
 import java.util.List;
 
-import org.freeplane.server.persistency.events.GenericEvent;
+import org.freeplane.server.adapters.mongodb.events.GenericEvent;
 
 public interface EventStore {
 	
@@ -24,4 +24,6 @@ public interface EventStore {
 	List<GenericEvent> findByIdAndMaxMapRevision(final String id, final long maxMapRevision);
 	
 	List<GenericEvent> findByIdAndMinMapRevision(final String id, final long minMapRevision);
+	
+	List<GenericEvent> findByMapIdAndMapRevision(final String mapId, final long mapRevision);
 }

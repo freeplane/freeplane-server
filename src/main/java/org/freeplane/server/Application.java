@@ -15,7 +15,7 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
 @SpringBootApplication
-@EnableMongoRepositories("org.freeplane.server.persistency.events")
+@EnableMongoRepositories("org.freeplane.server.adapters.mongodb.events")
 public class Application {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);

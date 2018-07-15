@@ -1,9 +1,10 @@
-package org.freeplane.server.persistency;
+package org.freeplane.server.adapters.mongodb;
 
 import java.util.List;
 
-import org.freeplane.server.persistency.events.GenericEvent;
-import org.freeplane.server.persistency.events.GenericEventRepository;
+import org.freeplane.server.adapters.mongodb.events.GenericEvent;
+import org.freeplane.server.adapters.mongodb.events.GenericEventRepository;
+import org.freeplane.server.domain.maps.EventStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -81,4 +82,13 @@ public class MongoDbEventStore implements EventStore {
 		return mongoTemplate.find(query, GenericEvent.class);
 	}
 
+	@Override
+	public List<GenericEvent> findByMapIdAndMapRevision(final String mapId, final long mapRevision)
+	{
+		Query query = new Query();
+		query.addCriteria(Criteria.where("mapId").is(mapId));
+		query.addCriteria(Criteria.where("_id.mapRevision").is(mapRevision));
+		query.with(new Sort(Sort.Direction.ASC, "eventIndex"));
+		return mongoTemplate.find(query, GenericEvent.class);
+	}
 }

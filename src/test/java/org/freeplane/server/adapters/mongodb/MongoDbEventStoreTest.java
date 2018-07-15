@@ -1,9 +1,26 @@
-package org.freeplane.server.persistency;
+package org.freeplane.server.adapters.mongodb;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
-import org.freeplane.server.persistency.events.GenericEvent;
+import org.freeplane.collaboration.event.MapUpdated;
+import org.freeplane.collaboration.event.children.ImmutableNodeInserted;
+import org.freeplane.collaboration.event.children.ImmutableNodePosition;
+import org.freeplane.collaboration.event.children.Side;
+import org.freeplane.collaboration.event.content.core.CoreMediaType;
+import org.freeplane.collaboration.event.content.core.ImmutableCoreUpdated;
+import org.freeplane.collaboration.event.messages.GenericUpdateBlockCompleted;
+import org.freeplane.collaboration.event.messages.ImmutableMapId;
+import org.freeplane.collaboration.event.messages.ImmutableUpdateBlockCompleted;
+import org.freeplane.collaboration.event.messages.ImmutableUserId;
+import org.freeplane.collaboration.event.messages.MapId;
+import org.freeplane.collaboration.event.messages.UpdateBlockCompleted;
+import org.freeplane.collaboration.event.messages.UserId;
+import org.freeplane.server.adapters.mongodb.MongoDbEventStore;
+import org.freeplane.server.adapters.mongodb.events.GenericEvent;
+import org.freeplane.server.json.JacksonConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +35,9 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 
@@ -27,7 +47,7 @@ public class MongoDbEventStoreTest {
 
 	@Configuration
 	@ComponentScan // need for autowiring MongoDbEventStore!
-	@EnableMongoRepositories("org.freeplane.server.persistency.events")
+	@EnableMongoRepositories("org.freeplane.server.adapters.mongodb.events")
 	@PropertySource("classpath:application.properties")
 	static class TestConfiguration {
 
@@ -50,7 +70,7 @@ public class MongoDbEventStoreTest {
 	
 	@Autowired
 	private MongoDbEventStore mongoDbEventStore;
-
+	
 	@Test
 	public void shouldSaveAndRetrieveGenericEvent()
 	{
@@ -187,5 +207,73 @@ public class MongoDbEventStoreTest {
 		Assert.assertEquals(genericEvent1, actual.get(0));
 		Assert.assertEquals(genericEvent2, actual.get(1));
 		Assert.assertEquals(genericEvent3, actual.get(2));
+	}
+	
+	@Test
+	public void testEventSerializeAndStoreAndFindAndDeserialize() throws Exception
+	{
+		final ObjectMapper objectMapper = new JacksonConfiguration().objectMapper();
+		
+		mongoDbEventStore.deleteAll();
+		
+		// create a short sequence of updates:
+		MapUpdated update1 = ImmutableNodeInserted.builder()
+				.position(ImmutableNodePosition.builder().parentId("roomongoDbEventStoretNode").position(0).side(Optional.of(Side.RIGHT)).build())
+				.nodeId("ID123")
+				.build();
+		MapUpdated update2 = ImmutableCoreUpdated.builder()
+				.content("new core content")
+				.nodeId("ID123")
+				.mediaType(CoreMediaType.PLAIN_TEXT)
+				.build();
+		MapId mapId = ImmutableMapId.of("mapId1");
+		UserId userId = ImmutableUserId.of("felixUser");
+		UpdateBlockCompleted updateFromClient = ImmutableUpdateBlockCompleted.builder()
+				.userId(userId)
+				.mapId(mapId)
+				.mapRevision(1L)
+				.addUpdateBlock(update1, update2)
+				.build();
+		
+		// serialize and deserialize as GenericUpdateBlockCompleted:
+		final String tmpJson = objectMapper.writeValueAsString(updateFromClient);
+		GenericUpdateBlockCompleted genericUpdateBlockCompleted = objectMapper.readValue(tmpJson, GenericUpdateBlockCompleted.class);
+		
+		int eventCounter = 1;
+		for (ObjectNode json : genericUpdateBlockCompleted.updateBlock())
+		{
+			final String contentType = json.get("contentType").toString();
+			final JsonNode nodeId = json.get("nodeId");
+			
+			GenericEvent genericEvent = new GenericEvent.Builder()
+			 	.mapId(mapId.value())
+			 	.nodeIdIf(nodeId != null, nodeId != null ? nodeId.toString() : null)	
+			 	.contentType(contentType)
+			 	.mapRevision(updateFromClient.mapRevision())
+			 	.eventIndex(eventCounter)
+			 	.json(json.toString())
+			 	.build();
+			
+			mongoDbEventStore.store(genericEvent);
+			
+			eventCounter++;
+		}
+
+		// retrieve from database and check against source:
+		final List<GenericEvent> fromDatabase = mongoDbEventStore.findByMapIdAndMapRevision(mapId.value(), 1L);
+		Assert.assertEquals(2, fromDatabase.size());
+		
+		List<MapUpdated> eventsFromDatabase = new LinkedList<>();
+		for (GenericEvent thisEvent : fromDatabase)
+		{
+			eventsFromDatabase.add(objectMapper.readValue(thisEvent.getJson(), MapUpdated.class));
+		}
+		UpdateBlockCompleted updateFromDatabase = ImmutableUpdateBlockCompleted.builder()
+				.userId(userId)
+				.mapId(mapId)
+				.mapRevision(1L)
+				.updateBlock(eventsFromDatabase)
+				.build();
+		Assert.assertEquals(updateFromClient, updateFromDatabase);
 	}
 }
