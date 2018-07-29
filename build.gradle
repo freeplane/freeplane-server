@@ -88,18 +88,11 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
-            // exclude this from gradle build, as it uses some JSON wrappers
-            // which are only available through linked eclipse projects!
-            exclude 'org/freeplane/server/controller/FreeplaneController.java'
        }
     }
     test {
         java {
             srcDir 'src/test/java'
-            // exclude this from gradle build, as it uses some JSON wrappers
-            // which are only available through linked eclipse projects!
-            exclude 'org/freeplane/server/client/ProductionTestClient.java'
-            exclude 'org/freeplane/server/controller/FreeplaneControllerTest.java'
         }
     }
 }
