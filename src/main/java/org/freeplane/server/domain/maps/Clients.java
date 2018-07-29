@@ -51,18 +51,19 @@ public class Clients {
 	
 	public void sendUpdates(MapId mapId, GenericUpdateBlockCompleted update)
 	{
-		if (mapUpdateSubscribers.containsKey(mapId))
+		if (!mapUpdateSubscribers.containsKey(mapId))
 		{
-			MapUpdateDistributed mapUpdateDistributed = ImmutableMapUpdateDistributed.builder()
-					.messageId(ImmutableMessageId.of("myServerMsgId2"))
-					.requestId(ImmutableMessageId.of("myMsgMapUpdateDistributed"))
-					.update(update)
-					.build();
+			throw new IllegalStateException("Received update for unknown mapid!");
+		}
+		MapUpdateDistributed mapUpdateDistributed = ImmutableMapUpdateDistributed.builder()
+				.messageId(ImmutableMessageId.of("myServerMsgId2"))
+				.requestId(ImmutableMessageId.of("myMsgMapUpdateDistributed"))
+				.update(update)
+				.build();
 
-			for (Client client : mapUpdateSubscribers.get(mapId))
-			{
-				client.sendMessage(mapUpdateDistributed);
-			}
+		for (Client client : mapUpdateSubscribers.get(mapId))
+		{
+			client.sendMessage(mapUpdateDistributed);
 		}
 	}
 

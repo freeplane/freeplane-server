@@ -1,7 +1,5 @@
 package org.freeplane.server.domain.maps;
 
-import static org.mockito.Mockito.verify;
-
 import java.util.Optional;
 
 import org.freeplane.collaboration.event.MapUpdated;
@@ -18,21 +16,18 @@ import org.freeplane.collaboration.event.messages.MapId;
 import org.freeplane.collaboration.event.messages.UpdateBlockCompleted;
 import org.freeplane.collaboration.event.messages.UserId;
 import org.freeplane.server.json.JacksonConfiguration;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MapsTest {
-	@Mock private EventStore eventStore;
-	@Mock private Clients clients;
-	
+public class ClientsTest {
 	@InjectMocks
-	private Maps maps;
+	private Clients clients;
 	
 	static private ObjectMapper objectMapper= new JacksonConfiguration().objectMapper();
 	
@@ -42,16 +37,9 @@ public class MapsTest {
 		return objectMapper.readValue(tmpJson, GenericUpdateBlockCompleted.class);
 	}
 	
-	@Test
-	public void testSimpleUpdate() throws Exception
+	private GenericUpdateBlockCompleted createSimpleGenericUpdate(MapId map1)
+			throws Exception
 	{
-		
-		Client4Test client1 = new Client4Test("client1");
-		MapId map1 = ImmutableMapId.of("map1");
-		
-//        when(testClients.subscribe(any(MapId.class), any(Client.class)));
-		maps.registerExistingMap(client1, map1);
-
 		// create a short sequence of updates:
 		MapUpdated update1 = ImmutableNodeInserted.builder()
 				.position(ImmutableNodePosition.builder().parentId("roomongoDbEventStoretNode").position(0).side(Optional.of(Side.RIGHT)).build())
@@ -71,8 +59,30 @@ public class MapsTest {
 				.build();
 
 		GenericUpdateBlockCompleted genericUpdate = convertToGenericUpdate(updateBlock1);
-		maps.processMapUpdates(client1, genericUpdate);
+		return genericUpdate;
+	}
+
+	@Test
+	public void testSimpleUpdate() throws Exception
+	{
+		Client4Test client1 = new Client4Test("client1");
+		MapId map1 = ImmutableMapId.of("map1");
+		clients.subscribe(map1, client1);
+
+		GenericUpdateBlockCompleted genericUpdate = createSimpleGenericUpdate(map1);
 		
-		verify(clients).sendUpdates(map1, genericUpdate);
+		clients.sendUpdates(map1, genericUpdate);
+		
+		Assert.assertEquals(1, client1.getRecordedMessages().size());
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testUpdateForUnregisteredMapFails() throws Exception
+	{
+		MapId map1 = ImmutableMapId.of("map1");
+		
+		GenericUpdateBlockCompleted genericUpdate = createSimpleGenericUpdate(map1);
+		
+		clients.sendUpdates(map1, genericUpdate);
 	}
 }
